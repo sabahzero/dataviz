@@ -1,4 +1,4 @@
-# dataviz.github.io
+#  https://sabahzero.github.io/dataviz
 Data and Research Visualization Workshops
 
 March 6, 2019 Workshop
