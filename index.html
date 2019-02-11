@@ -1,20 +1,32 @@
----
-layout: default
----
-
-<div class="home">
-
-  <h1>Posts</h1>
-
-  <ul class="posts">
-    {% for post in site.posts %}
-      <li>
-        <span class="post-date">{{ post.date | date: "%b %-d, %Y" }}</span>
-        <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
-      </li>
-    {% endfor %}
-  </ul>
-
-  <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | prepend: site.baseurl }}">via RSS</a></p>
-
-</div>
+<!DOCTYPE html>
+ 
+<html>
+	<head>
+		<title> Data and Research Visualization </title>
+		<link rel="stylesheet" type="text/css" href="css/main.css">
+	</head>
+	<body>
+		<nav>
+    		<ul>
+			<li><a href="/ivamp">Home</a></li>
+			<li><a href="/ivamp/people">Workshops</a></li>
+      <li><a href="/ivamp/about">Contact</a></li>
+    		</ul>
+		</nav>
+		<div class="container">
+    		<div class="blurb">
+        		<h2>Welcome to The Initiative for Venom Associated Microbes and Parasites (iVAMP) </h2>
+			<p> Our website and database are constantly evolving. Have a suggestion? <br>
+				To work with us and/or learn about what we're doing, subscribe to our listerv: <br>
+				<a href="https://groups.google.com/forum/#!forum/ivamp">ivamp@googlegroups.com</a><p>
+			<img src="https://raw.githubusercontent.com/sabahzero/ivamp/master/images/King_Heteroscodra-maculata.jpg" width="800" height="550">
+			<p> <i>Heteroscodra maculata</i> <br>
+				This spider is an Old World species of tarantula commonly referred to as the 'Togo starburst' or the 'ornamental baboon'. <br>
+				Photo taken by Dr. Glenn King <p>
+		<footer>
+    		<ul>
+        		<li><a href="mailto:bysabahulhasan@gmail.com">email</a></li>
+			</ul>
+		</footer>
+	</body>
+</html>
