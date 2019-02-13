@@ -23,12 +23,12 @@ a {
     text-decoration: none;
     font-size: 1.15em;
     font-family:'Helvetica', 'Helvetica', 'Helvetica';
-    color: #1E4E6C;
+    color: #F1AC48;
 }
 a:hover {
     font-family:'Helvetica', 'Helvetica', 'Helvetica';
     text-decoration: underline;
-    color: #F1AC48;
+    color: #1E4E6C;
 }
 h1 {
     font-size: 2.3em;
