@@ -1,5 +1,5 @@
 #  https://sabahzero.github.io/dataviz
-Data and Research Visualization Workshops
+Open-source Data and Research Visualization Workshops
 
 [March 6, 2019 Workshop](https://sabahzero.github.io/dataviz/workshops) (UC Merced) </br>
 Co-hosts Sabah Ul-Hasan (@sabahzero) and Nicholas Dove (@nicholascdove) 
