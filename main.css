@@ -28,7 +28,7 @@ a {
 a:hover {
     font-family:'Helvetica', 'Helvetica', 'Helvetica';
     text-decoration: underline;
-    color: #d13239;
+    color: #183c85;
 }
 h1 {
     font-size: 2.3em;
@@ -38,6 +38,11 @@ h2 {
     font-size: 1.8em;
     font-family:'Helvetica', 'Helvetica', 'Helvetica';
 }
+h3 {
+    font-size: 1.3em;
+    font-family:'Helvetica', 'Helvetica', 'Helvetica';
+}
+
 
 p {
     font-size: 1.15em;
