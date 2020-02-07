@@ -9,4 +9,7 @@ Co-hosts Sabah Ul-Hasan (@sabahzero) and Nicholas Dove (@nicholascdove)
 Co-facilitators Sabah Ul-Hasan (@sabahzero) and Nicholas Dove (@nicholascdove) 
 
 [Jan 28, 2020 Workshop](https://sabahzero.github.io/dataviz/workshops) (Scripps Research) </br>
-Introduction to Biostatistics (TRIBIO 420) Guest speaker Sabah Ul-Hasan (@sabahzero)
+Introduction to Biostatistics (TRIBIO 420) Guest Speaker Sabah Ul-Hasan (@sabahzero)
+
+[Feb 19, 2020 Workshop](https://sabahzero.github.io/dataviz/) (Scripps Institution of Oceanography) </br>
+SIO R-Users Group, Guest speaker Sabah Ul-Hasan (@sabahzero)
