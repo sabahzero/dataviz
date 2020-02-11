@@ -1,0 +1,169 @@
+---
+title: "Merged Scripts from Class on Jan28, 2020 (Wilck et al. 2017 Fig5a)"
+author: "Sabah Ul-Hasan"
+output: pdf_document
+---
+
+How can we use R, R markdown, and ggplot2 to reproduce Wilck et al. 2017 Fig 5a?
+Publication  https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6070150/
+Code repo    https://github.com/almlab/analysis-salt-responsive/tree/master/analysis 
+
+Lines 15-42       Relevant package installation, and library load
+Lines 44-109      Workshop activity (reproduce 5a individually)
+Lines 111-169     Build on image and script (edits individually, and with group)
+
+Install Relevant Packages and Load Libraries 
+```{r}
+
+# Package installation
+
+## You can uncomment these packages to re-install them and update the versions
+## Note to check your version of R + RStudio when running into installation trouble
+
+##  Need this package for downloading data directly from Github
+### install.packages("RCurl") 
+### packageVersion("RCurl") # v1.98.1.1 # Helpful to know which version used for reproducibility (like lab notebook) 
+
+## Need this package for visualization of data 
+### install.packages("ggplot2") 
+### packageVersion("ggplot2") # v3.2.1
+
+## Need this package to compile images as a unified figure
+### install.packages("cowplot")
+### packageVersion("cowplot") # v1.0.0
+
+
+
+# Load libraries directly, if packages previously installed 
+library("RCurl") 
+library("ggplot2")
+library("cowplot") 
+
+```
+
+Workshop Activity
+```{r}
+
+# Upload Data 
+
+## Load data from our Github repo as df
+df <- read.csv(text=getURL("https://raw.githubusercontent.com/sabahzero/dataviz/master/Jan28-2020/Wilck-etal-2017_Fig5a.csv")) 
+summary(df) # Quick view of our data, we can also see this in our 'Environment'
+
+## What does this data mean, what belongs where for Fig 5a?
+### What's the difference between this data set and raw data? How can we access the raw data, and why?
+
+
+
+# Data Prep for Visualization
+## We can't make Fig5a in ggplot2 right away, why?
+
+## Subset by systolic (Fig 5ai) or diastolic (Fig 5aii)
+### Note: There's a more efficient way to do this, how?
+#### Hint: Consider pipes as one possible solution https://www.datacamp.com/community/tutorials/pipe-r-tutorial#intro 
+sysbas <- subset(df, select = c("baseline..systolic.")) # always be clear with df labels
+names(sysbas)[1] <- "value" # rename column for dataframe summaries later
+sysbas$category <- 'systolic baseline' # create new column with string
+syssal <- subset(df, select = c("salt..systolic."))
+names(syssal)[1] <- "value"
+syssal$category <- 'systolic high salt'
+
+diabas <- subset(df, select = c("baseline..diastolic.")) 
+names(diabas)[1] <- "value"
+diabas$category <- 'diastolic baseline'
+diasal <- subset(df, select = c("salt..diastolic.")) 
+names(diasal)[1] <- "value"
+diasal$category <- 'diastolic high salt'
+
+## Merge by column name (now we know why we relabeled)
+sys <- rbind(sysbas, syssal) 
+dia <- rbind(diabas, diasal)
+
+
+
+# Reproduce Fig5a in ggplot2
+sys.plot <- ggplot(sys, aes(x = category, y = value, fill = category)) +
+  geom_boxplot() + # Creates boxplots
+  geom_point() + # Adds data points
+  labs(x="", y = "Nocturnal systolic blood pressure (mm Hg)") + # Labels axes
+  theme(legend.position = "none") # Removes automaticlaly included legend
+sys.plot # View of plot
+
+dia.plot <- ggplot(dia, aes(x = category, y = value, fill = category)) +
+  geom_boxplot() +
+  geom_point() +
+  labs(x="", y = "Nocturnal diastolic blood pressure (mm Hg)") +
+  theme(legend.position = "none") 
+dia.plot
+ 
+Fig5a = plot_grid(sys.plot, dia.plot, labels = "a", label_size=12)
+Fig5a   
+
+### Save our image as .png
+
+ggsave("Fig5a.png", dpi = 800) 
+
+# What did we *not* do that's still left? 
+## Group breakouts
+
+```
+
+Class Additions to Figure 5a 
+```{r}
+
+# Collective results from attempting the following tasks as a group, or individually 
+## 1. Add error bars
+## 2. Show statistical significance with asterisks
+## 3. Adjust color scheme to match 
+## 4. Adjust point and font sizes to match
+## 5. Adjust y scales and update x labels
+## 6. Improve the script: DRY (dont repeat yourself) > WET (write every time)
+## 7. Something else
+## When you're done, save your .rmd script and .png image each as "Fig5a_[number above].[rmd or png]" 
+
+### Packages needed for Task 1, load libraries thereafter
+#### install.packages("ggsignif")
+#### packageVersion("ggsignif") # v0.6.0
+#### install.packages("ggpubr")
+#### packageVersion("ggpubr") # v0.2.4
+library("ggsignif")
+library("ggpubr")
+
+sys.plot <- ggplot(sys, aes(x = category, y = value, fill = category)) +
+  geom_boxplot(fill=c("white","gray")) + # Task 3
+  geom_point(fill="black",size=3) + # Task 4
+  labs(x="", y = "Nocturnal systolic blood pressure (mm Hg)") + 
+  scale_x_discrete(labels=c('systolic baseline','systolic high salt')) + # Task 6 (x labels)
+  theme(legend.position = "none") + # Removes automaticlaly included legend
+  ylim(0, 130) + # Task 6 (y scale)
+  geom_signif(comparisons=list(c("systolic baseline", "systolic high salt")), map_signif_level=TRUE) + # Task 2, need ggsignif
+  stat_compare_means(method = "t.test") # Task 2, need ggpubr
+sys.plot 
+ 
+dia.plot <- ggplot(sys, aes(x = category, y = value, fill = category)) +
+  geom_boxplot(fill=c("white","gray")) +
+  geom_point(fill="black",size=3) + 
+  labs(x="", y = "Nocturnal diastolic blood pressure (mm Hg)") +
+  scale_x_discrete(labels=c('diastolic baseline','diastolic high salt')) + 
+  theme(legend.position = "none") +
+  ylim(0, 130) + 
+  geom_signif(comparisons=list(c("diastolic baseline", "diastolic high salt")), map_signif_level=TRUE) + 
+  stat_compare_means(method = "t.test") 
+dia.plot
+
+Fig5a = plot_grid(sys.plot, dia.plot, labels = "a", label_size=12)
+Fig5a   
+
+### Save our image as .png
+ggsave("Fig5a_after.png", dpi = 800) 
+
+## General comments as a class, and from Google Forms Survey
+## https://forms.gle/qjnkVefXy6H9AqxG8  
+### The significance of annotating our code throughout, using RStudio 
+### An example of how collaborations can function as complementary strengths 
+### Determining how to figure out adding statistical significance on the graph gives insight for how different significance tests are used, and to understand these variations between the Methods of a paper and the functions in R. For example, we see different results of significance from our attempts with the data. This could be because different statistics were used to determined significance, or a discrepency in the data itself. This affirms the importance of having code from a study being available and transparent for reproducibility.
+### "There are so many different ways to get to the same result in R, and part of the learning process is figuring out an efficient way to do it. I really enjoyed the lecture and activity. I learned a lot in the short time because I was actually figuring something out on my own rather than just copying code from the slides."
+### "I learned the choice of color arrangement and the gray scale of each color is important for stats graphing. As I'm new to this stats graphing field, I find it really helpful to discuss with people regarding the standard of a better graph."
+### "I learned to use ggplot from this lecture which is really useful and convenient. It would be more helpful if we could spend more time in practicing the application of ggplot on data."
+
+```
