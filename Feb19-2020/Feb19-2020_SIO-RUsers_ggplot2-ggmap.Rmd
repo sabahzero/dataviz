@@ -5,116 +5,168 @@ output: pdf_document
 ---
 
 How can we use R, R markdown, ggplot2, and ggmap to plot data on a publish-ready map? 
-Publication  https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6070150/
 Code repo    https://github.com/almlab/analysis-salt-responsive/tree/master/analysis 
+*Data from Malloy and Ul-Hasan et al (in progress)
 
-Lines 14-100     Workshop activity (reproduce 5a individually)
-Lines 103-120    Build on image and script (edits individually, and/or with group) 
+Lines 15-52      Relevant package installation, and library load
+Lines 54-154     Map demo: Figure 1 (a-b)
+Lines 156-     Build on Figure 1 by R script (or own data) 
 
-Workshop Activity
+Install Relevant Packages and Load Libraries 
 ```{r}
 
-# Upload Data 
+##### Package installation #####
+# You can uncomment these packages to re-install them and update the versions
+# Note to check your version of R + RStudio when running into installation trouble
 
-## Need this package for downloading data directly from Github
-install.packages("RCurl") 
-library("RCurl") 
-packageVersion("RCurl") # v1.98.1.1 *great way to document which version used when thinking into the future of who may utilize your code next
+#  Need this package for downloading data directly from Github
+## install.packages("RCurl") 
+## packageVersion("RCurl") # v1.98.1.1 
+### Helpful to know which version used for reproducibility (like lab notebook)
 
-## Load data from our Github repo as df
-df <- read.csv(text=getURL("https://raw.githubusercontent.com/sabahzero/dataviz/master/Jan28-2020/Wilck-etal-2017_Fig5a.csv")) 
-summary(df) # Quick view of our data, we can also see this in our 'Environment'
+# Need packages for map coordinates
+## if(!requireNamespace("devtools")) install.packages("devtools")
+## devtools::install_github("dkahle/ggmap")
+## packageVersion("ggmap") # v3.0.0
+## install.packages("rgdal")
+## packageVersion("rgdal") # v1.4.8
 
-## What does this data mean, what belongs where for Fig 5a?
-### What's the difference between this data set and raw data? How can we access the raw data, and why?
+# Need this package for visualization of data 
+## install.packages("ggplot2") 
+## packageVersion("ggplot2") # v3.2.1
 
+# Need this package to compile images as a unified figure
+## install.packages("cowplot")
+## packageVersion("cowplot") # v1.0.0
+##### Package installation #####
 
-
-# Data Prep for Visualization
-## We can't make Fig5a in ggplot2 right away, why?
-
-## Package for reorganization of dataframe
-install.packages("tidyr") 
-library("tidyr")
-# packageVersion("tidyr") # v1.0.0
-
-## Subset by systolic (Fig 5ai) or diastolic (Fig 5aii)
-### Note: There's a more efficient way to do this, how?
-#### Hint: Consider a loop or pipe as one possible solution https://www.datacamp.com/community/tutorials/pipe-r-tutorial#intro 
-sysbas <- subset(df, select = c("baseline..systolic.")) # always be clear with df labels
-names(sysbas)[1] <- "value" # rename column for dataframe summaries later
-sysbas$category <- 'systolic baseline' # create new column with string
-syssal <- subset(df, select = c("salt..systolic."))
-names(syssal)[1] <- "value"
-syssal$category <- 'systolic high salt'
-
-diabas <- subset(df, select = c("baseline..diastolic.")) 
-names(diabas)[1] <- "value"
-diabas$category <- 'diastolic baseline'
-diasal <- subset(df, select = c("salt..diastolic.")) 
-names(diasal)[1] <- "value"
-diasal$category <- 'diastolic high salt'
-
-## Merge by column name (now we know why we relabeled)
-sys <- rbind(sysbas, syssal) 
-dia <- rbind(diabas, diasal)
-
-
-
-# Reproduce Fig5a in ggplot2
-## Install package (if not already done)
-install.packages("ggplot2") 
-library(ggplot2)
-# packageVersion("ggplot2") # v3.2.1
-
-sys.plot <- ggplot(sys, aes(x = category, y = value, fill = category)) +
-  geom_boxplot() + # Creates boxplots
-  geom_point() + # Adds data points
-  labs(x="", y = "Nocturnal systolic blood pressure (mm Hg)") + # Labels axes
-  theme(legend.position = "none") # Removes automaticlaly included legend
-sys.plot # View of plot
-
-dia.plot <- ggplot(dia, aes(x = category, y = value, fill = category)) +
-  geom_boxplot() +
-  geom_point() +
-  labs(x="", y = "Nocturnal diastolic blood pressure (mm Hg)") +
-  theme(legend.position = "none") 
-dia.plot
- 
-## Use the cowplot package to put figures on top of each other, then we'll save the image
-install.packages("cowplot")
+# Can load directly, if packages already installed 
+##### Load libraries #####
+library("RCurl")
+library("rgdal")
+library("ggmap")
+library("ggplot2")
 library("cowplot") 
-### packageVersion("cowplot") # v1.0.0
-
-Fig5a = plot_grid(sys.plot, dia.plot, labels = "a", label_size=12)
-Fig5a   
-
-### Save our image as .png
-ggsave("Fig5a.png", dpi = 800) 
-
-
-
-# What did we *not* do that's still left? 
-## Group breakouts
+##### Load libraries #####
 
 ```
 
+Create a map showing where samples were collected 
+```{r}
 
-Group Activity
+##### Upload Data #####
+# Load data from our Github repo as df
+df <- read.csv(text=getURL("https://raw.githubusercontent.com/sabahzero/dataviz/master/Feb19-2020/SupplementalTable3_Data-Clean.csv")) 
+summary(df) # Quick view of our data, we can also see this in our 'Environment'
+
+# About the data:
+## These are a collection of Californiconus californicus (California Cone Snail) shells from 1892 - 2018, and their associated measurements in prep for the manuscript with running title, "Bergmann’s Rule across the Pleistocene, Holocene, and Anthropocene in an Eastern Pacific neogastropod, Californiconus californicus (Reeve, 1844) (Gastropoda: Conidae)" 
+### ME Malloy*, S Ul-Hasan*, LL Lewis, JKK Hofmeister, S Crickenberger, CA O'Leary, S Sindi, A Hendy, WF Gilly, T Woyke, CJ Nobile, LT Groves, JE Vendetti 
+### https://github.com/MichaelMalloy/C_californicus_Morphology 
+### Ch I of dissertation: https://escholarship.org/uc/item/7rn287kn 
+
+# For a map, what about the data do we care about?
+## Latitude, Longitude, and Epoch (Anthropocene, Holocene, or Pleistocene)
+## shape files for ecoregions from http://www.marineregions.org/ (specifics in repo)
+NC_poly=readOGR( "northern_ecoregions" , layer="ecoregions") 
+SCB_poly=readOGR( "southern_ecoregions" , layer="ecoregions") 
+MT_poly=readOGR( "magdaelena_ecoregions" , layer="ecoregions") 
+##### Upload Data #####
+
+##### Create Map (Figure 1a-b) #####
+#  Need a personalized account with API key (map key) for Google maps
+## Instructions: https://github.com/dkahle/ggmap
+## ggmap::register_google(key = " ") 
+### More helpful info: https://www.littlemissdata.com/blog/maps 
+
+# Figure 1a: Larger map
+## Parameters for All points
+All_bbox <- make_bbox(lat = Latitude, lon = Longitude, data = df)
+All_bbox # Informs us what to set for parameters
+##     left        bottom    right       top 
+##     -122.786    27.359    -114.734    37.721 
+All=get_map(location=c(-129,20,-105,42), # adjust to include regions
+            zoom = 5, 
+            maptype = "terrain") # can adjust this type as well
+## Create box for zoom of SoCal
+SoCal_box = data.frame(x=c(-121,-121,-116.5,-116.5,-121), 
+       y=c(35,32,32,35,35)) 
+## Plot map 
+Figure1a = ggmap(All) + # Google map of parameters
+  geom_polygon(data = NC_poly, aes(x = long, y = lat), # polygons (shape files)
+               fill = "white", alpha = 0.5) + 
+  geom_polygon(data = SCB_poly, aes(x = long, y = lat),
+               fill = "blue", alpha = 0.3) +
+  geom_polygon(data = MT_poly, aes(x = long, y = lat),
+               fill = "#666666", alpha = 0.5) + # grey
+  stat_density_2d(data = df, # hypothetical population density
+                  aes(x = Longitude,
+                      y = Latitude,
+                      fill = stat(level)),
+                  alpha = .25,
+                  bins = 250, # can adjust this for resolution
+                  geom = "polygon") +
+  scale_fill_gradientn(colors = "black") + # fills density layers as black 
+  scale_color_manual(values=c("#FC4E07", "#E7B800", "#00AFBB")) + # colors by Epoch
+  geom_point(data = df, aes(x = Longitude, y = Latitude, color = Epoch), 
+             alpha = 0.15,
+             size = 1) + # layers points
+  geom_path(data=SoCal_box, aes(x,y), color="black", lwd=1) + # insert box
+  labs(x="Longitude", y="Latitude") +
+  theme(legend.position="none")
+Figure1a
+
+# Figure 1b: Zoom-in of SoCal
+SoCal=get_map(location=c(-121,32,-116.5,35), # adjust based on SoCal_box
+            maptype = "terrain-background") # can adjust this type as well
+## Plot map
+Figure1b = ggmap(SoCal) +
+  geom_polygon(data = NC_poly, aes(x = long, y = lat),
+               fill = "white", alpha = 0.5) + # white
+  geom_polygon(data = SCB_poly, aes(x = long, y = lat),
+               fill = "blue", alpha = 0.3) + # blue
+    stat_density_2d(data = df, # density
+                  aes(x = Longitude,
+                      y = Latitude,
+                      fill = stat(level)),
+                  alpha = .25,
+                  bins = 250,
+                  geom = "polygon") +
+  scale_fill_gradientn(colors = "black") + # color fill, black
+  scale_color_manual(values=c("#FC4E07", "#E7B800", "#00AFBB")) +
+  geom_point(data = df, aes(x = Longitude, y = Latitude, color = Epoch), 
+             alpha = 0.15,
+             size = 1) +
+  theme(axis.title.x=element_blank(), axis.title.y=element_blank())
+Figure1b # Note the ecoregions cut-out if polygon not fully included
+
+# Grid using cowplot, and save
+Figure1 = plot_grid(Figure1a, Figure1b, labels = c("A", "B"), label_size=12)
+Figure1   
+
+ggsave("Figure1.png", dpi = 800) 
+
+##### Create Map (Figure 1a-b) #####
+
+# What did we *not* do that's still left? 
+## Group breakouts or work on own data
+
+```
+
+Exercises: Build on Figure 1 (or own data)
 ```{r}
 
 # Now that you're in your group, copy/paste the script above and use this space to improve the script and/or image
 
-## Select one of the following tasks
-### 1. Add error bars
-### 2. Show statistical significance with asterisks
-### 3. Adjust color scheme to match 
-### 4. Adjust point and font sizes to match
-### 5. Adjust y scales and update x labels
-### 6. Improve the script: DRY (dont repeat yourself) > WET (write every time)
-### 7. Something else
+## Select one of the following tasks (or try it out with your own data)
+### 1. Remove the superfluous legend (or make it more informative if keeping)
+### 2. Adjust the spacing of the legend to better balance out Figure 1
+### 3. Adjust the map sizes such that there is less 'useless' space within A and B
+### 4. Add a title to the figure
+### 5. Make the script more DRY (ie a for loop to automate) 
 
-## When you're done, save your .rmd script and .png image each as "Fig5a_[number above].[rmd or png]" 
-## Then, upload onto the repo to be shared
+## When you're done, save your .rmd script and .png image each as "Figure1_[First-LastName].[rmd or png]" 
+## Then, upload onto the repo or email to sulhasan@scripps.edu to be shared
+### You're also welcome to share insights from your own data, as you prefer!
 
 ```
