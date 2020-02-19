@@ -1,0 +1,120 @@
+---
+title: "Feb19-2020_SIO-RUsers_ggplot2-ggmap"
+author: "Sabah Ul-Hasan"
+output: pdf_document
+---
+
+How can we use R, R markdown, ggplot2, and ggmap to plot data on a publish-ready map? 
+Publication  https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6070150/
+Code repo    https://github.com/almlab/analysis-salt-responsive/tree/master/analysis 
+
+Lines 14-100     Workshop activity (reproduce 5a individually)
+Lines 103-120    Build on image and script (edits individually, and/or with group) 
+
+Workshop Activity
+```{r}
+
+# Upload Data 
+
+## Need this package for downloading data directly from Github
+install.packages("RCurl") 
+library("RCurl") 
+packageVersion("RCurl") # v1.98.1.1 *great way to document which version used when thinking into the future of who may utilize your code next
+
+## Load data from our Github repo as df
+df <- read.csv(text=getURL("https://raw.githubusercontent.com/sabahzero/dataviz/master/Jan28-2020/Wilck-etal-2017_Fig5a.csv")) 
+summary(df) # Quick view of our data, we can also see this in our 'Environment'
+
+## What does this data mean, what belongs where for Fig 5a?
+### What's the difference between this data set and raw data? How can we access the raw data, and why?
+
+
+
+# Data Prep for Visualization
+## We can't make Fig5a in ggplot2 right away, why?
+
+## Package for reorganization of dataframe
+install.packages("tidyr") 
+library("tidyr")
+# packageVersion("tidyr") # v1.0.0
+
+## Subset by systolic (Fig 5ai) or diastolic (Fig 5aii)
+### Note: There's a more efficient way to do this, how?
+#### Hint: Consider a loop or pipe as one possible solution https://www.datacamp.com/community/tutorials/pipe-r-tutorial#intro 
+sysbas <- subset(df, select = c("baseline..systolic.")) # always be clear with df labels
+names(sysbas)[1] <- "value" # rename column for dataframe summaries later
+sysbas$category <- 'systolic baseline' # create new column with string
+syssal <- subset(df, select = c("salt..systolic."))
+names(syssal)[1] <- "value"
+syssal$category <- 'systolic high salt'
+
+diabas <- subset(df, select = c("baseline..diastolic.")) 
+names(diabas)[1] <- "value"
+diabas$category <- 'diastolic baseline'
+diasal <- subset(df, select = c("salt..diastolic.")) 
+names(diasal)[1] <- "value"
+diasal$category <- 'diastolic high salt'
+
+## Merge by column name (now we know why we relabeled)
+sys <- rbind(sysbas, syssal) 
+dia <- rbind(diabas, diasal)
+
+
+
+# Reproduce Fig5a in ggplot2
+## Install package (if not already done)
+install.packages("ggplot2") 
+library(ggplot2)
+# packageVersion("ggplot2") # v3.2.1
+
+sys.plot <- ggplot(sys, aes(x = category, y = value, fill = category)) +
+  geom_boxplot() + # Creates boxplots
+  geom_point() + # Adds data points
+  labs(x="", y = "Nocturnal systolic blood pressure (mm Hg)") + # Labels axes
+  theme(legend.position = "none") # Removes automaticlaly included legend
+sys.plot # View of plot
+
+dia.plot <- ggplot(dia, aes(x = category, y = value, fill = category)) +
+  geom_boxplot() +
+  geom_point() +
+  labs(x="", y = "Nocturnal diastolic blood pressure (mm Hg)") +
+  theme(legend.position = "none") 
+dia.plot
+ 
+## Use the cowplot package to put figures on top of each other, then we'll save the image
+install.packages("cowplot")
+library("cowplot") 
+### packageVersion("cowplot") # v1.0.0
+
+Fig5a = plot_grid(sys.plot, dia.plot, labels = "a", label_size=12)
+Fig5a   
+
+### Save our image as .png
+ggsave("Fig5a.png", dpi = 800) 
+
+
+
+# What did we *not* do that's still left? 
+## Group breakouts
+
+```
+
+
+Group Activity
+```{r}
+
+# Now that you're in your group, copy/paste the script above and use this space to improve the script and/or image
+
+## Select one of the following tasks
+### 1. Add error bars
+### 2. Show statistical significance with asterisks
+### 3. Adjust color scheme to match 
+### 4. Adjust point and font sizes to match
+### 5. Adjust y scales and update x labels
+### 6. Improve the script: DRY (dont repeat yourself) > WET (write every time)
+### 7. Something else
+
+## When you're done, save your .rmd script and .png image each as "Fig5a_[number above].[rmd or png]" 
+## Then, upload onto the repo to be shared
+
+```
