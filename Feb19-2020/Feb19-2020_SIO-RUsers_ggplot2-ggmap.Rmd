@@ -5,12 +5,12 @@ output: pdf_document
 ---
 
 How can we use R, R markdown, ggplot2, and ggmap to plot data on a publish-ready map? 
-Code repo    https://github.com/almlab/analysis-salt-responsive/tree/master/analysis 
+Code repo    https://github.com/sabahzero/dataviz/tree/master/Feb19-2020
 *Data from Malloy and Ul-Hasan et al (in progress)
 
-Lines 15-52      Relevant package installation, and library load
-Lines 54-154     Map demo: Figure 1 (a-b)
-Lines 156-     Build on Figure 1 by R script (or own data) 
+Lines 15-52       Relevant package installation, and library load
+Lines 54-154      Map demo: Figure 1 (a-b)
+Lines 156-174     Build on Figure 1 by R script (or own data) 
 
 Install Relevant Packages and Load Libraries 
 ```{r}
@@ -155,6 +155,8 @@ ggsave("Figure1.png", dpi = 800)
 
 Exercises: Build on Figure 1 (or own data)
 ```{r}
+
+# You can link arcGIS to your R (arcGIS R bridge)
 
 # Now that you're in your group, copy/paste the script above and use this space to improve the script and/or image
 
